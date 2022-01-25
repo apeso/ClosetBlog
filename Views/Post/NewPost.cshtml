@@ -1,0 +1,126 @@
+﻿@{
+    ViewBag.Title = "Novi post";
+    Layout = "_Layout";
+
+}
+
+//PROVJERIIIII OVO,,SKRIPTA NIJE OK!!!!
+<div class="container-fluid">
+    <div class="row no-gutter">
+        <div class="d-none d-md-flex col-md-4 col-lg-6 bg-image"></div>
+        <div class="col-md-8 col-lg-6">
+            <div class="login d-flex align-items-center py-5">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-9 col-lg-8 mx-auto">
+                            <h3 class="login-heading mb-4">Nova KNJIGA</h3>
+                            <form>
+                                <div class="form-label-group">
+                                    <input type="text" id="link" class="form-control" placeholder="Link na sliku" required autofocus>
+                                    <label for="link">Link na sliku: </label>
+                                    <span id="link_g" style="color:red;"></span>
+                                </div>
+                                <div class="form-label-group">
+                                    <textarea id="opis" rows="4" cols="50" class="form-control" placeholder="Opis..."></textarea>
+                                    <span id="opis_g" style="color:red;"></span>
+                                </div>
+                                <input type="button" id="saveBtn" value="Dodaj" onclick="save()" class="btn btn-lg btn-primary btn-block btn-login text-uppercase font-weight-bold mb-2" />
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    'use strict';
+
+    window.onload = function () {
+        axios.get('/api/users').then(response => addToSelectUser(response.data));
+        
+    }
+
+    function addToSelectUser(podaci) {
+
+        var select = document.getElementById("zanr");
+        for (var i = 0; i < podaci.length; i++) {
+            var option = document.createElement("option");
+            option.text = podaci[i].naziv;
+            option.value = podaci[i].id;
+            select.appendChild(option);
+        }
+
+    }
+
+
+    function save() {
+
+        if (check()) {
+            insert();
+        }
+        else {
+            alert("Dogodila se greška\nProvjeri ispravnost podataka");
+        }
+    }
+
+    function getElement(id) {
+        return document.getElementById(id).value;
+    }
+
+    function check() {
+
+        var ok = true;
+        var link = getElement("link");
+        var opis = getElement("opis");
+        
+
+        //naslov
+        if (link.length < 0) {
+            ok = false;
+            document.getElementById("link_g").innerHTML = "Link mora biti upisan i dulji od 1 znaka";
+        }
+        else {
+            document.getElementById("link_g").innerHTML = "";
+        }
+        //opis
+        if (opis.length < 20) {
+            ok = false;
+            document.getElementById("opis_g").innerHTML = "Opis knjige mora biti kratak, minimalno 20 znakova";
+        }
+        else {
+            document.getElementById("opis_g").innerHTML = "";
+        }
+        
+
+        return ok;
+    }
+
+    function insert() {
+
+        //dovoljno je samo spremit podatke
+        //nema potrebe provjeravat postoje li ti zanrovi i/ili autori jer smo ih izvukli iz baze podataka kod ucitavanja stranice
+        //treba napraviti update na dvije tablice : Book i Author-Book
+
+        var link = getElement("link");
+        var opis = getElement("opis");
+        //potrebno prominit,tribamo tražit tj spremat post za određenog usera!!!!!!!!
+        var id = 0;
+        var json = {
+            "idPost": 0, //baza ce dodjeliti id
+            "link":link,
+            "description": opis,
+            "username": id,
+            
+            
+        }
+        axios.post('/api/posts/save', json).then(response => alert("Podaci su uspješno dodani"));
+        //nakon uspjesnog spremanja vrati se na index
+        window.setTimeout(function () {
+            window.location.href = "/Posts/Posts";
+        }, 3000);  //podaci se ne spreme uspjesno ako se ne saceka
+    }
+
+
+</script>
